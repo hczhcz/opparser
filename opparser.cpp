@@ -17,16 +17,19 @@ namespace OPParser {
         Level levelLeft() {
             return numeric_limits <Level>::min();
         }
+
         Level levelRight() {
             error("Input already finished");
             // Never reach
             return numeric_limits <Level>::max();
         }
+
         void onPush(Parser &parser) {
-            //
+            // Nothing
         }
+
         void onPop(Parser &parser) {
-            //
+            check(parser.midStack.empty(), "Input not completed");
         }
     };
 
@@ -59,9 +62,10 @@ namespace OPParser {
 
     // Pop from middle stack
     void Parser::midPop() {
-        midStack.back()->onPop(*this);
-        // outstack.push_back(midStack.back());
+        check(!midStack.empty(), "No token to pop");
+        PToken token = midStack.back();
         midStack.pop_back();
+        token->onPop(*this);
     }
 
     void Parser::parse(const Input &input) {
@@ -84,22 +88,14 @@ namespace OPParser {
         }
     }
 
-    void Parser::finish(vector <PToken> &result, bool allowContinue) {
+    void Parser::finish(vector <PToken> &result) {
         // check(state == stateInitial, "Wrong finalize state");
 
         // Clear middle stack
         FinToken _finTokenInstance;
         PToken finToken = &_finTokenInstance;
         midPush(finToken);
-
-        // assert(midStack.back() == finToken);
-        if (midStack.size() != 1) {
-            if (allowContinue) {
-                midPop();
-            } else {
-                error("Input not completed");
-            }
-        }
+        midPop();
 
         // Return outstack as result
         result = outStack;

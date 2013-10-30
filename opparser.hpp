@@ -64,11 +64,9 @@ namespace OPParser {
     protected:
         // Map of lexer chains
         map <State, vector <PLexer> > lexers;
-
-        vector <PToken> midStack;
-        // vector <PToken> outStack;
     public:
         State state;
+        vector <PToken> midStack;
         vector <PToken> outStack;
 
         // Reset (start parsing)
@@ -84,7 +82,7 @@ namespace OPParser {
         void parse(const Input &input);
 
         // Finish parsing
-        void finish(vector <PToken> &result, bool allowContinue);
+        void finish(vector <PToken> &result);
     };
 }
 
