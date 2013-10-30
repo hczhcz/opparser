@@ -84,7 +84,7 @@ namespace OPParser {
         void parse(const Input &input);
 
         // Finish parsing
-        void finish(vector <PToken> &result);
+        void finish(vector <PToken> &result, bool allowContinue);
     };
 }
 

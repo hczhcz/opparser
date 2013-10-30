@@ -84,7 +84,7 @@ namespace OPParser {
         }
     }
 
-    void Parser::finish(vector <PToken> &result) {
+    void Parser::finish(vector <PToken> &result, bool allowContinue) {
         // check(state == stateInitial, "Wrong finalize state");
 
         // Clear middle stack
@@ -92,13 +92,18 @@ namespace OPParser {
         PToken finToken = &_finTokenInstance;
         midPush(finToken);
 
-        check(midStack.size() == 1, "Input not completed");
-        // assert(midStack[0] == finToken);
-
-        midStack.clear();
+        // assert(midStack.back() == finToken);
+        if (midStack.size() != 1) {
+            if (allowContinue) {
+                midPop();
+            } else {
+                error("Input not completed");
+            }
+        }
 
         // Return outstack as result
         result = outStack;
-        outStack.clear();
+
+        reset();
     }
 }
