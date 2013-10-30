@@ -7,13 +7,15 @@
 #include <string>
 #include <limits>
 
-using namespace std;
-
 namespace OPParser {
+    using namespace std;
+
     typedef int State;
     typedef int Level;
     typedef string Input;
     typedef Input::const_iterator InputIter;
+
+    const State stateInitial = 0;
 
     class Lexer;
     class Token;
@@ -68,6 +70,9 @@ namespace OPParser {
     public:
         State state;
         vector <PToken> outStack;
+
+        // Reset (start parsing)
+        void reset();
 
         // Push to middle stack
         void midPush(PToken &token);

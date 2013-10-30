@@ -30,6 +30,12 @@ namespace OPParser {
         }
     };
 
+    void Parser::reset() {
+        state = stateInitial;
+        midStack.clear();
+        outStack.clear();
+    }
+
     void Parser::midPush(PToken &token) {
         token->onPush(*this);
 
@@ -79,6 +85,8 @@ namespace OPParser {
     }
 
     void Parser::finish(vector <PToken> &result) {
+        // check(state == stateInitial, "Wrong finalize state");
+
         // Clear middle stack
         FinToken _finTokenInstance;
         PToken finToken = &_finTokenInstance;
