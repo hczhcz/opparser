@@ -9,6 +9,7 @@ namespace OPParser {
     class Calc: public Parser {
     public:
         // Initialization
+        // Push lexers to the parser
         void init();
     };
 }

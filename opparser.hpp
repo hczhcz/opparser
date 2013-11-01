@@ -7,20 +7,30 @@
 #include <string>
 #include <limits>
 
+// The namespace of the operator-precedence parser
 namespace OPParser {
     using namespace std;
 
+    // Type of the state of the parser
     typedef int State;
+
+    // Type of the precedence level of operators
     typedef int Level;
+
+    // Input data type
     typedef string Input;
+
+    // Input iterator type
     typedef Input::const_iterator InputIter;
 
+    // Initial state
     const State stateInitial = 0;
 
     class Lexer;
     class Token;
     class Parser;
 
+    // Use pointer instead of reference
     typedef Lexer *PLexer;
     typedef Token *PToken;
 

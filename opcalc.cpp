@@ -1,4 +1,5 @@
 #define _USE_MATH_DEFINES
+#include <cstdlib>
 #include <cmath>
 #include "opcalc.hpp"
 #include "opcalcrule.hpp"
@@ -23,8 +24,11 @@ namespace OPParser {
 
     // Number
     class NumToken: public Token {
-    public:
+    protected:
         CalcData value;
+    public:
+        friend class BiToken;
+        friend class MonoToken;
 
         NumToken(CalcData toValue) {
             value = toValue;
@@ -49,9 +53,9 @@ namespace OPParser {
 
     // Bi-operators
     class BiToken: public Token {
-    public:
+    protected:
         BiOperType type;
-
+    public:
         BiToken(BiOperType toType) {
             type = toType;
         }
@@ -73,6 +77,8 @@ namespace OPParser {
         void onPop(Parser &parser) {
             check(parser.outStack.size() >= 2, "No operand");
 
+            // Cast the tokens
+            // Tokens in outStack should be numbers
             PNumToken tRight = dynamic_cast <PNumToken>(
                 parser.outStack.back()
             );
@@ -82,6 +88,7 @@ namespace OPParser {
             );
             check(tRight != 0 && tLeft != 0, "Unknown operand");
 
+            // Do calculation
             switch (type) {
             case otAdd:
                 tLeft->value += tRight->value;
@@ -109,9 +116,9 @@ namespace OPParser {
 
     // Mono-operators
     class MonoToken: public Token {
-    public:
+    protected:
         MonoOperType type;
-
+    public:
         MonoToken(MonoOperType toType) {
             type = toType;
         }
@@ -134,11 +141,14 @@ namespace OPParser {
         void onPop(Parser &parser) {
             check(parser.outStack.size() >= 2, "No operand");
 
+            // Cast the token
+            // Tokens in outStack should be numbers
             PNumToken tTarget = dynamic_cast <PNumToken>(
                 parser.outStack.back()
             );
             check(tTarget != 0, "Unknown operand");
 
+            // Do calculation
             switch (type) {
             case otPos:
                 // tTarget->value = +tTarget->value;
@@ -202,6 +212,7 @@ namespace OPParser {
         void onPop(Parser &parser) {
             check(!parser.midStack.empty(), "No left bracket");
 
+            // Cast the token to left bracket, then delete it
             PLeftToken tLB = dynamic_cast <PLeftToken>(
                 parser.midStack.back()
             );
@@ -212,8 +223,118 @@ namespace OPParser {
         }
     };
 
+    // Lexers
+
+    // Numbers
+    class NumLexer: public Lexer {
+        bool tryGetToken(InputIter &now, const InputIter &end, Parser &parser) {
+            char buffer[256];
+            unsigned index = 0;
+
+            for (; index < 255; ++index) {
+                switch (*now) {
+                case '0':
+                case '1':
+                case '2':
+                case '3':
+                case '4':
+                case '5':
+                case '6':
+                case '7':
+                case '8':
+                case '9':
+                case '.':
+                    buffer[index] = *now;
+                    ++now;
+                    continue;
+                }
+                break;
+            }
+            if (index == 0) {
+                return 0;
+            } else {
+                buffer[index] = 0;
+
+                char *endPtr;
+                CalcData number = strtod(buffer, &endPtr);
+
+                check(*endPtr == 0, "Wrong format of number");
+
+                PToken token = new NumToken(number);
+                parser.midPush(token);
+                return 1;
+            }
+        }
+    };
+
+    // Operators appear after numbers
+    class AfterNumLexer: public Lexer {
+    public:
+        bool tryGetToken(InputIter &now, const InputIter &end, Parser &parser) {
+            PToken token = 0;
+
+            // Cast and recognise token
+            switch (*now) {
+            case '+':
+                token = new BiToken(otAdd);
+                break;
+            case '-':
+                token = new BiToken(otSub);
+                break;
+            case '*':
+                token = new BiToken(otMul);
+                break;
+            case '/':
+                token = new BiToken(otDiv);
+                break;
+            case '%':
+                token = new BiToken(otMod);
+                break;
+            case '^':
+                token = new BiToken(otPwr);
+                break;
+            case '!':
+                token = new MonoToken(otFac);
+                break;
+            }
+
+            if (token) {
+                ++now;
+                parser.midPush(token);
+                return 1;
+            } else {
+                return 0;
+            }
+        }
+    };
+
+    class NoNumLexer: public Lexer {
+        //
+    };
+
+    class LeftLexer: public Lexer {
+        //
+    };
+
+    class RightLexer: public Lexer {
+        //
+    };
+
+    class BlankLexer: public Lexer {
+        //
+    };
+
+    class FinLexer: public Lexer {
+        //
+    };
+
     void Calc::init() {
         lexers.clear();
-        // lexers[0].push_back();
+
+        PLexer numLexer = new NumLexer();
+        lexers[stateOper].push_back(numLexer);
+
+        PLexer afterNumLexer = new AfterNumLexer();
+        lexers[stateOper].push_back(afterNumLexer);
     }
 }

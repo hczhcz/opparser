@@ -12,6 +12,7 @@ namespace OPParser {
     }
 
     // An abstract token to pop everything from middle stack
+    // For stack allocation only
     class FinToken: public Token {
     public:
         Level levelLeft() {
@@ -71,6 +72,8 @@ namespace OPParser {
     void Parser::parse(const Input &input) {
         InputIter now = input.begin();
         const InputIter end = input.end();
+
+        // Scan input
         while (now != end) {
             vector <PLexer> &nowlexers = lexers[state];
 
@@ -79,6 +82,7 @@ namespace OPParser {
             while (1) {
                 check(iter != nowlexers.end(), "Unknown token");
 
+                // Try lexers
                 if ((*iter)->tryGetToken(now, end, *this)) {
                     break;
                 }
@@ -92,6 +96,7 @@ namespace OPParser {
         // check(state == stateInitial, "Wrong finalize state");
 
         // Clear middle stack
+        // Use a FinToken to pop everything
         FinToken _finTokenInstance;
         PToken finToken = &_finTokenInstance;
         midPush(finToken);
