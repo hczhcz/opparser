@@ -10,7 +10,6 @@ int main() {
     Input test("1+1");
 
     calc.init();
-    calc.reset();
     calc.parse(test);
     cout<<calc.finishByData();
 }

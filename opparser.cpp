@@ -32,6 +32,10 @@ namespace OPParser {
         void onPop(Parser &parser) {
             check(parser.midStack.empty(), "Input not completed");
         }
+
+        Input show() {
+            return "<fin>";
+        }
     };
 
     void Parser::reset() {
@@ -40,22 +44,20 @@ namespace OPParser {
         outStack.clear();
     }
 
-    void Parser::midPush(PToken &token) {
+    void Parser::midPush(PToken token) {
         token->onPush(*this);
 
-        if (!midStack.empty()) {
-            while (1) {
-                // Pop all lower-level tokens
-                if (midStack.back()->levelRight() > token->levelLeft()) {
-                    midPop();
-                    continue;
-                }
-                if (midStack.back()->levelRight() < token->levelLeft()) {
-                    break;
-                }
-                // Wrong
-                error("Token collision");
+        while (!midStack.empty()) {
+            // Pop all lower-level tokens
+            if (midStack.back()->levelRight() > token->levelLeft()) {
+                midPop();
+                continue;
             }
+            if (midStack.back()->levelRight() < token->levelLeft()) {
+                break;
+            }
+            // Wrong
+            error("Token collision");
         }
 
         midStack.push_back(token);
@@ -97,8 +99,8 @@ namespace OPParser {
 
         // Clear middle stack
         // Use a FinToken to pop everything
-        PToken finToken(new FinToken());
-        midPush(finToken);
+        PToken token(new FinToken());
+        midPush(token);
         midPop();
 
         // Return outstack as result

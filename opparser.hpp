@@ -44,7 +44,7 @@ namespace OPParser {
 
     // Lexer particle, recognise token from string
     // Chain-factory, to create token
-    class Lexer {
+    class Lexer: public enable_shared_from_this <Lexer>{
     public:
         // If can create this token, return true, increase the offset of input and push token
         // If input can be ignored, return true and increase the offset
@@ -53,11 +53,11 @@ namespace OPParser {
     };
 
     // Token, contains token information and final data (after pop from middle stack)
-    class Token {
+    class Token: public enable_shared_from_this <Token>{
     public:
         // Precedence levels
-        virtual Level levelLeft() = 0;
-        virtual Level levelRight() = 0;
+        virtual Level levelLeft() {return 1;};
+        virtual Level levelRight() {return 1;};
 
         // Push to middle stack
         // To change state of lexers
@@ -67,6 +67,10 @@ namespace OPParser {
         // To build final data (using data from output stack)
         // And to push data to output stack
         virtual void onPop(Parser &parser) = 0;
+
+        // Show as string (input form)
+        // For debug only
+        virtual Input show() = 0;
     };
 
     // The operator-precedence parser
@@ -74,26 +78,29 @@ namespace OPParser {
     class Parser {
     protected:
         // Map of lexer chains
-        map <State, vector <PLexer> > lexers;
+        map <State, vector <PLexer> > lexers = {};
     public:
         State state;
-        vector <PToken> midStack;
-        vector <PToken> outStack;
+        vector <PToken> midStack = {};
+        vector <PToken> outStack = {};
+
+        // Initialization
+        virtual void init() = 0;
 
         // Reset (start parsing)
-        void reset();
+        virtual void reset();
 
         // Push to middle stack
-        void midPush(PToken &token);
+        void midPush(PToken token);
 
         // Pop from middle stack
         void midPop();
 
         // Parse a string
-        void parse(const Input &input);
+        virtual void parse(const Input &input);
 
         // Finish parsing
-        void finish(vector <PToken> &result);
+        virtual void finish(vector <PToken> &result);
     };
 }
 

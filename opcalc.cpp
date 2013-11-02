@@ -24,7 +24,7 @@ namespace OPParser {
     // Number
     class NumToken: public Token {
     protected:
-        CalcData value;
+        CalcData value = 0;
     public:
         friend class Calc;
         friend class BiToken;
@@ -47,8 +47,11 @@ namespace OPParser {
         }
 
         void onPop(Parser &parser) {
-            PToken self(this);
-            parser.outStack.push_back(self);
+            parser.outStack.push_back(shared_from_this());
+        }
+
+        Input show() {
+            return "<num>";
         }
     };
 
@@ -88,7 +91,7 @@ namespace OPParser {
                 parser.outStack.back()
             );
 
-            check(tRight != 0 && tLeft != 0, "Unknown operand");
+            check(tRight != nullptr && tLeft != nullptr, "Unknown operand");
 
             // Do calculation
             switch (type) {
@@ -106,9 +109,27 @@ namespace OPParser {
                 break;
             case otMod:
                 tLeft->value -= int(tLeft->value / tRight->value) * tRight->value;
+                break;
             case otPwr:
                 tLeft->value = pow(tLeft->value, tRight->value);
                 break;
+            }
+        }
+
+        Input show() {
+            switch (type) {
+            case otAdd:
+                return "+";
+            case otSub:
+                return "-";
+            case otMul:
+                return "*";
+            case otDiv:
+                return "/";
+            case otMod:
+                return "%";
+            case otPwr:
+                return "^";
             }
         }
     };
@@ -145,7 +166,7 @@ namespace OPParser {
             PNumToken tTarget = dynamic_pointer_cast <NumToken> (
                 parser.outStack.back()
             );
-            check(tTarget != 0, "Unknown operand");
+            check(tTarget != nullptr, "Unknown operand");
 
             // Do calculation
             switch (type) {
@@ -169,6 +190,17 @@ namespace OPParser {
                 break;
             }
         }
+
+        Input show() {
+            switch (type) {
+            case otPos:
+                return "+";
+            case otNeg:
+                return "-";
+            case otFac:
+                return "!";
+            }
+        }
     };
 
     // Left bracket
@@ -187,6 +219,10 @@ namespace OPParser {
         }
 
         void onPop(Parser &parser) {
+        }
+
+        Input show() {
+            return "(";
         }
     };
 
@@ -212,9 +248,13 @@ namespace OPParser {
             PLeftToken tLB = dynamic_pointer_cast <LeftToken> (
                 parser.midStack.back()
             );
-            check(tLB != 0, "Bad left bracket");
+            check(tLB != nullptr, "Bad left bracket");
 
             parser.midPop();
+        }
+
+        Input show() {
+            return ")";
         }
     };
 
@@ -272,37 +312,36 @@ namespace OPParser {
     class AfterNumLexer: public Lexer {
     public:
         bool tryGetToken(InputIter &now, const InputIter &end, Parser &parser) {
-            Token *newToken;
+            PToken token(nullptr);
 
             // Cast and recognise token
             switch (*now) {
             case '+':
-                newToken = new BiToken(otAdd);
+                token = PToken(new BiToken(otAdd));
                 break;
             case '-':
-                newToken = new BiToken(otSub);
+                token = PToken(new BiToken(otSub));
                 break;
             case '*':
-                newToken = new BiToken(otMul);
+                token = PToken(new BiToken(otMul));
                 break;
             case '/':
-                newToken = new BiToken(otDiv);
+                token = PToken(new BiToken(otDiv));
                 break;
             case '%':
-                newToken = new BiToken(otMod);
+                token = PToken(new BiToken(otMod));
                 break;
             case '^':
-                newToken = new BiToken(otPwr);
+                token = PToken(new BiToken(otPwr));
                 break;
             case '!':
-                newToken = new MonoToken(otFac);
+                token = PToken(new MonoToken(otFac));
                 break;
             }
 
-            if (newToken) {
+            if (token != nullptr) {
                 // Accepted
                 ++now;
-                PToken token(newToken);
                 parser.midPush(token);
                 return 1;
             } else {
@@ -355,6 +394,8 @@ namespace OPParser {
         PLexer blankLexer(new BlankLexer());
         lexers[stateNum].push_back(blankLexer);
         lexers[stateOper].push_back(blankLexer);
+
+        reset();
     }
 
     CalcData Calc::finishByData() {
@@ -364,10 +405,11 @@ namespace OPParser {
         check(result.size() == 1, "Bad result");
 
         PNumToken tResult = dynamic_pointer_cast <NumToken> (
-            result[0]
+            result.back()
         );
 
-        check(tResult != 0, "Bad result");
+        check(tResult != nullptr, "Bad result");
+
         return tResult->value;
     }
 }
