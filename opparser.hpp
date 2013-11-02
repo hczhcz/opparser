@@ -2,6 +2,7 @@
 #define __INC_OPPARSER_HPP__
 
 #include <stdexcept>
+#include <memory>
 #include <vector>
 #include <map>
 #include <string>
@@ -31,8 +32,8 @@ namespace OPParser {
     class Parser;
 
     // Use pointer instead of reference
-    typedef Lexer *PLexer;
-    typedef Token *PToken;
+    typedef shared_ptr <Lexer> PLexer;
+    typedef shared_ptr <Token> PToken;
 
     // Throw error
     void error(const string info);

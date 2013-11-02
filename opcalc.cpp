@@ -5,7 +5,6 @@
 #include "opcalcrule.hpp"
 
 namespace OPParser {
-    typedef double CalcData;
     enum BiOperType {otAdd, otSub, otMul, otDiv, otMod, otPwr};
     enum MonoOperType {otPos, otNeg, otFac};
 
@@ -14,11 +13,11 @@ namespace OPParser {
     class MonoToken;
     class LeftToken;
     class RightToken;
-    typedef NumToken   *PNumToken;
-    typedef BiToken    *PBiToken;
-    typedef MonoToken  *PMonoToken;
-    typedef LeftToken  *PLeftToken;
-    typedef RightToken *PRightToken;
+    typedef shared_ptr <NumToken  > PNumToken;
+    typedef shared_ptr <BiToken   > PBiToken;
+    typedef shared_ptr <MonoToken > PMonoToken;
+    typedef shared_ptr <LeftToken > PLeftToken;
+    typedef shared_ptr <RightToken> PRightToken;
 
     // Tokens
 
@@ -27,6 +26,7 @@ namespace OPParser {
     protected:
         CalcData value;
     public:
+        friend class Calc;
         friend class BiToken;
         friend class MonoToken;
 
@@ -47,7 +47,8 @@ namespace OPParser {
         }
 
         void onPop(Parser &parser) {
-            parser.outStack.push_back(this);
+            PToken self(this);
+            parser.outStack.push_back(self);
         }
     };
 
@@ -79,13 +80,14 @@ namespace OPParser {
 
             // Cast the tokens
             // Tokens in outStack should be numbers
-            PNumToken tRight = dynamic_cast <PNumToken>(
+            PNumToken tRight = dynamic_pointer_cast <NumToken> (
                 parser.outStack.back()
             );
             parser.outStack.pop_back();
-            PNumToken tLeft = dynamic_cast <PNumToken>(
+            PNumToken tLeft = dynamic_pointer_cast <NumToken> (
                 parser.outStack.back()
             );
+
             check(tRight != 0 && tLeft != 0, "Unknown operand");
 
             // Do calculation
@@ -108,9 +110,6 @@ namespace OPParser {
                 tLeft->value = pow(tLeft->value, tRight->value);
                 break;
             }
-
-            delete tRight;
-            delete this;
         }
     };
 
@@ -143,7 +142,7 @@ namespace OPParser {
 
             // Cast the token
             // Tokens in outStack should be numbers
-            PNumToken tTarget = dynamic_cast <PNumToken>(
+            PNumToken tTarget = dynamic_pointer_cast <NumToken> (
                 parser.outStack.back()
             );
             check(tTarget != 0, "Unknown operand");
@@ -169,8 +168,6 @@ namespace OPParser {
                 }
                 break;
             }
-
-            delete this;
         }
     };
 
@@ -190,7 +187,6 @@ namespace OPParser {
         }
 
         void onPop(Parser &parser) {
-            delete this;
         }
     };
 
@@ -213,13 +209,12 @@ namespace OPParser {
             check(!parser.midStack.empty(), "No left bracket");
 
             // Cast the token to left bracket, then delete it
-            PLeftToken tLB = dynamic_cast <PLeftToken>(
+            PLeftToken tLB = dynamic_pointer_cast <LeftToken> (
                 parser.midStack.back()
             );
             check(tLB != 0, "Bad left bracket");
 
             parser.midPop();
-            delete this;
         }
     };
 
@@ -231,6 +226,7 @@ namespace OPParser {
             char buffer[256];
             unsigned index = 0;
 
+            // Read number to buffer
             for (; index < 255; ++index) {
                 switch (*now) {
                 case '0':
@@ -250,9 +246,14 @@ namespace OPParser {
                 }
                 break;
             }
+
             if (index == 0) {
+                // If not accepted
                 return 0;
             } else {
+                // If accepted
+                // Generate token
+
                 buffer[index] = 0;
 
                 char *endPtr;
@@ -260,7 +261,7 @@ namespace OPParser {
 
                 check(*endPtr == 0, "Wrong format of number");
 
-                PToken token = new NumToken(number);
+                PToken token(new NumToken(number));
                 parser.midPush(token);
                 return 1;
             }
@@ -271,35 +272,37 @@ namespace OPParser {
     class AfterNumLexer: public Lexer {
     public:
         bool tryGetToken(InputIter &now, const InputIter &end, Parser &parser) {
-            PToken token = 0;
+            Token *newToken;
 
             // Cast and recognise token
             switch (*now) {
             case '+':
-                token = new BiToken(otAdd);
+                newToken = new BiToken(otAdd);
                 break;
             case '-':
-                token = new BiToken(otSub);
+                newToken = new BiToken(otSub);
                 break;
             case '*':
-                token = new BiToken(otMul);
+                newToken = new BiToken(otMul);
                 break;
             case '/':
-                token = new BiToken(otDiv);
+                newToken = new BiToken(otDiv);
                 break;
             case '%':
-                token = new BiToken(otMod);
+                newToken = new BiToken(otMod);
                 break;
             case '^':
-                token = new BiToken(otPwr);
+                newToken = new BiToken(otPwr);
                 break;
             case '!':
-                token = new MonoToken(otFac);
+                newToken = new MonoToken(otFac);
                 break;
             }
 
-            if (token) {
+            if (newToken) {
+                // Accepted
                 ++now;
+                PToken token(newToken);
                 parser.midPush(token);
                 return 1;
             } else {
@@ -321,7 +324,19 @@ namespace OPParser {
     };
 
     class BlankLexer: public Lexer {
-        //
+        bool tryGetToken(InputIter &now, const InputIter &end, Parser &parser) {
+            switch (*now) {
+            case 0:
+            case '\t':
+            case '\n':
+            case '\r':
+            case ' ':
+                ++now;
+                return 1;
+            default:
+                return 0;
+            }
+        }
     };
 
     class FinLexer: public Lexer {
@@ -331,10 +346,28 @@ namespace OPParser {
     void Calc::init() {
         lexers.clear();
 
-        PLexer numLexer = new NumLexer();
-        lexers[stateOper].push_back(numLexer);
+        PLexer numLexer(new NumLexer());
+        lexers[stateNum].push_back(numLexer);
 
-        PLexer afterNumLexer = new AfterNumLexer();
+        PLexer afterNumLexer(new AfterNumLexer());
         lexers[stateOper].push_back(afterNumLexer);
+
+        PLexer blankLexer(new BlankLexer());
+        lexers[stateNum].push_back(blankLexer);
+        lexers[stateOper].push_back(blankLexer);
+    }
+
+    CalcData Calc::finishByData() {
+        vector <PToken> result;
+        finish(result);
+
+        check(result.size() == 1, "Bad result");
+
+        PNumToken tResult = dynamic_pointer_cast <NumToken> (
+            result[0]
+        );
+
+        check(tResult != 0, "Bad result");
+        return tResult->value;
     }
 }

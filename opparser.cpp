@@ -64,7 +64,7 @@ namespace OPParser {
     // Pop from middle stack
     void Parser::midPop() {
         check(!midStack.empty(), "No token to pop");
-        PToken token = midStack.back();
+        PToken token(midStack.back());
         midStack.pop_back();
         token->onPop(*this);
     }
@@ -97,8 +97,7 @@ namespace OPParser {
 
         // Clear middle stack
         // Use a FinToken to pop everything
-        FinToken _finTokenInstance;
-        PToken finToken = &_finTokenInstance;
+        PToken finToken(new FinToken());
         midPush(finToken);
         midPop();
 

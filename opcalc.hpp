@@ -4,6 +4,9 @@
 #include "opparser.hpp"
 
 namespace OPParser {
+    // Type of data in the calculator
+    typedef double CalcData;
+
     // Calculator, to calculate arithmetic expressions
     // A simple example of implementing of the parser
     class Calc: public Parser {
@@ -11,6 +14,9 @@ namespace OPParser {
         // Initialization
         // Push lexers to the parser
         void init();
+
+        // Finish parsing and return result
+        CalcData finishByData();
     };
 }
 
