@@ -159,7 +159,7 @@ namespace OPParser {
         }
 
         void onPop(Parser &parser) {
-            check(parser.outStack.size() >= 1, "No operand");
+            check(!parser.outStack.empty(), "No operand");
 
             // Cast the token
             // Tokens in outStack should be numbers

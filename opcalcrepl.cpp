@@ -65,7 +65,7 @@ namespace OPParser {
             try {
                 read();
                 write();
-            } catch (runtime_error e) {
+            } catch (const runtime_error &e) {
                 (*out)<<"  # "<<e.what()<<endl;
                 init();
             }
