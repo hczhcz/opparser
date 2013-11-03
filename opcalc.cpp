@@ -65,12 +65,12 @@ namespace OPParser {
         }
 
         Level levelLeft() {
-            const Level toMap[] = {levelAddSubL, levelAddSubL, levelMulDivL, levelMulDivL, levelPwrL};
+            const Level toMap[] = {levelAddSubL, levelAddSubL, levelMulDivL, levelMulDivL, levelMulDivL, levelPwrL};
             return toMap[type];
         }
 
         Level levelRight() {
-            const Level toMap[] = {levelAddSubR, levelAddSubR, levelMulDivR, levelMulDivR, levelPwrR};
+            const Level toMap[] = {levelAddSubR, levelAddSubR, levelMulDivR, levelMulDivR, levelMulDivR, levelPwrR};
             return toMap[type];
         }
 
@@ -159,7 +159,7 @@ namespace OPParser {
         }
 
         void onPop(Parser &parser) {
-            check(parser.outStack.size() >= 2, "No operand");
+            check(parser.outStack.size() >= 1, "No operand");
 
             // Cast the token
             // Tokens in outStack should be numbers
@@ -262,6 +262,7 @@ namespace OPParser {
 
     // Numbers
     class NumLexer: public Lexer {
+    public:
         bool tryGetToken(InputIter &now, const InputIter &end, Parser &parser) {
             char buffer[256];
             unsigned index = 0;
@@ -351,18 +352,63 @@ namespace OPParser {
     };
 
     class NoNumLexer: public Lexer {
-        //
+    public:
+        bool tryGetToken(InputIter &now, const InputIter &end, Parser &parser) {
+            PToken token(nullptr);
+
+            // Cast and recognise token
+            switch (*now) {
+            case '+':
+                token = PToken(new MonoToken(otPos));
+                break;
+            case '-':
+                token = PToken(new MonoToken(otNeg));
+                break;
+            }
+
+            if (token != nullptr) {
+                // Accepted
+                ++now;
+                parser.midPush(token);
+                return 1;
+            } else {
+                return 0;
+            }
+        }
     };
 
     class LeftLexer: public Lexer {
-        //
+    public:
+        bool tryGetToken(InputIter &now, const InputIter &end, Parser &parser) {
+            if (*now == '(') {
+                // Accepted
+                ++now;
+                PToken token(new LeftToken());
+                parser.midPush(token);
+                return 1;
+            } else {
+                return 0;
+            }
+        }
     };
 
     class RightLexer: public Lexer {
-        //
+    public:
+        bool tryGetToken(InputIter &now, const InputIter &end, Parser &parser) {
+            if (*now == ')') {
+                // Accepted
+                ++now;
+                PToken token(new RightToken());
+                parser.midPush(token);
+                return 1;
+            } else {
+                return 0;
+            }
+        }
     };
 
     class BlankLexer: public Lexer {
+    public:
         bool tryGetToken(InputIter &now, const InputIter &end, Parser &parser) {
             switch (*now) {
             case 0:
@@ -379,21 +425,38 @@ namespace OPParser {
     };
 
     class FinLexer: public Lexer {
+    public:
         //
     };
 
     void Calc::init() {
         lexers.clear();
 
-        PLexer numLexer(new NumLexer());
-        lexers[stateNum].push_back(numLexer);
-
-        PLexer afterNumLexer(new AfterNumLexer());
-        lexers[stateOper].push_back(afterNumLexer);
-
-        PLexer blankLexer(new BlankLexer());
-        lexers[stateNum].push_back(blankLexer);
-        lexers[stateOper].push_back(blankLexer);
+        {
+            PLexer lexer(new NumLexer());
+            lexers[stateNum].push_back(lexer);
+        }
+        {
+            PLexer lexer(new AfterNumLexer());
+            lexers[stateOper].push_back(lexer);
+        }
+        {
+            PLexer lexer(new NoNumLexer());
+            lexers[stateNum].push_back(lexer);
+        }
+        {
+            PLexer lexer(new LeftLexer());
+            lexers[stateNum].push_back(lexer);
+        }
+        {
+            PLexer lexer(new RightLexer());
+            lexers[stateOper].push_back(lexer);
+        }
+        {
+            PLexer lexer(new BlankLexer());
+            lexers[stateNum].push_back(lexer);
+            lexers[stateOper].push_back(lexer);
+        }
 
         reset();
     }

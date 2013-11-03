@@ -1,13 +1,10 @@
 #ifndef __INC_OPPARSER_HPP__
 #define __INC_OPPARSER_HPP__
 
-#include <stdexcept>
 #include <memory>
 #include <vector>
 #include <map>
 #include <string>
-#include <limits>
-
 // The namespace of the operator-precedence parser
 namespace OPParser {
     using namespace std;

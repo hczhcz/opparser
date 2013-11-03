@@ -1,3 +1,5 @@
+#include <stdexcept>
+#include <limits>
 #include "opparser.hpp"
 
 namespace OPParser {
