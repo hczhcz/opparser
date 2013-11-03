@@ -7,22 +7,23 @@ For fun.
 
 Build the calculator
 ---
-1. Compile (clang++ for example)
+
+Compile (clang++ for example)
 
 	clang++ -std=c++11 opparser.cpp
 	clang++ -std=c++11 opcalc.cpp
 	clang++ -std=c++11 opcalcrepl.cpp
 	clang++ -std=c++11 project.cpp
 
-2. Link
+Link
 
 	clang++ *.o -o calc
 
-3. Run
+Run
 
 	./calc
 
-4. Have fun
+Have fun
 
 	> 1+1
 	  = 2
@@ -46,12 +47,13 @@ Build the calculator
 
 Implement your own language
 ---
-1. Write a new parser class
+
+Write a new parser class
 
 	using namespace OPParser;
 	class SomeParser: public Parser;
 
-2. Write tokens
+Write tokens
 
 	class SomeToken: public Token {
 	public:
@@ -81,7 +83,7 @@ Implement your own language
 	    }
 	};
 
-3. Write lexers
+Write lexers
 
 	class SomeLexer: public Lexer {
 	public:
@@ -97,7 +99,7 @@ Implement your own language
 	    }
 	};
 
-4. Add lexers to the parser
+Add lexers to the parser
 
 	void SomeParser::init() {
 	    Parser::init();
@@ -108,7 +110,7 @@ Implement your own language
 	    // More...
 	}
 
-5. Use the parser
+Use the parser
 
 	SomeParser parser;
 	parser.init();
