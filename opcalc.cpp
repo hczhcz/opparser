@@ -179,13 +179,50 @@ namespace OPParser {
             case otFac:
                 // x! == gamma(x + 1)
                 CalcData &x = tTarget->value;
-                if (x == 0) {
-                    x = 1;
-                } else{
-                    CalcData rx = 1 / x;
-                    CalcData rxsqr = rx * rx;
-                    // Stirling approximation (series)
-                    x = sqrt(2 * M_PI * x) * pow(x, x) * (1 + (1 / 12) * rx + (1 / 288) * rxsqr + (-139 / 51840) * rx * rxsqr) / exp(x);
+                if (x < 0) {
+                    x = -NAN;
+                } else if (x < 0.7) {
+                    // Taylor Series
+                    const CalcData x1  = x;         // m0 d1
+                    const CalcData x2  = x1 * x1;   // m1 d2
+                    const CalcData x3  = x2 * x1;   // m2 d3
+                    const CalcData x4  = x2 * x2;   // m2 d3
+                    const CalcData x5  = x4 * x1;   // m3 d4
+                    const CalcData x6  = x4 * x2;   // m3 d4
+                    const CalcData x7  = x4 * x3;   // m3 d4
+                    const CalcData x8  = x4 * x4;   // m3 d4
+                    const CalcData x9  = x8 * x1;   // m4 d5
+                    const CalcData x10 = x8 * x2;   // m4 d5
+                    const CalcData x11 = x8 * x3;   // m4 d5
+                    x =
+                        + 1.00000000000000000000       - 0.57721566490153286061 * x1
+                        + 0.98905599532797255540 * x2  - 0.90747907608088628902 * x3
+                        + 0.98172808683440018734 * x4  - 0.98199506890314520210 * x5
+                        + 0.99314911462127619315 * x6  - 0.99600176044243153397 * x7
+                        + 0.99810569378312892198 * x8  - 0.99902526762195486779 * x9
+                        + 0.85077168542087678    * x10 - 0.37664551140085667    * x11
+                    ;
+                } else {
+                    // Stirling Series
+                    const CalcData x1  = 1 / x;     // m0 d1
+                    const CalcData x2  = x1 * x1;   // m1 d2
+                    const CalcData x3  = x2 * x1;   // m2 d3
+                    const CalcData x4  = x2 * x2;   // m2 d3
+                    const CalcData x5  = x4 * x1;   // m3 d4
+                    const CalcData x6  = x4 * x2;   // m3 d4
+                    const CalcData x7  = x4 * x3;   // m3 d4
+                    const CalcData x8  = x4 * x4;   // m3 d4
+                    const CalcData x9  = x8 * x1;   // m4 d5
+                    const CalcData x10 = x8 * x2;   // m4 d5
+                    const CalcData x11 = x8 * x3;   // m4 d5
+                    x = (
+                        + 0.00016579876471393590    * x11 - 0.0006721951190716635     * x10
+                        + 0.00083949872067208727999 * x9  - 0.000051717909082605921934 * x8
+                        - 0.00059216643735369388286 * x7  + 0.000069728137583658577743 * x6
+                        + 0.00078403922172006662747 * x5  - 0.00022947209362139917695  * x4
+                        - 0.0026813271604938271605  * x3  + 0.0034722222222222222222   * x2
+                        + 0.083333333333333333333   * x1  + 1.0000000000000000000
+                    ) * sqrt(2.0 * M_PI) * pow(x, x + 0.5) * exp(-x);
                 }
                 break;
             }
