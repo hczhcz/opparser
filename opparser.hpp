@@ -33,11 +33,11 @@ namespace OPParser {
     typedef shared_ptr <Token> PToken;
 
     // Throw error
-    void error(const string info);
+    void error(const string &info);
 
     // Runtime checking like assert
     // If failed, throw error
-    void check(const bool condition, const string info);
+    void check(const bool condition, const string &info);
 
     // Lexer particle, recognise token from string
     // Chain-factory, to create token
@@ -53,8 +53,8 @@ namespace OPParser {
     class Token: public enable_shared_from_this <Token>{
     public:
         // Precedence levels
-        virtual Level levelLeft() {return 1;};
-        virtual Level levelRight() {return 1;};
+        virtual Level levelLeft() = 0;
+        virtual Level levelRight() = 0;
 
         // Push to middle stack
         // To change state of lexers
@@ -72,6 +72,7 @@ namespace OPParser {
 
     // The operator-precedence parser
     // Using modified shunting-yard algorithm
+    // Must initialize before use
     class Parser {
     protected:
         // Map of lexer chains
@@ -82,9 +83,11 @@ namespace OPParser {
         vector <PToken> outStack = {};
 
         // Initialization
-        virtual void init() = 0;
+        // Will call reset() here
+        virtual void init();
 
-        // Reset (start parsing)
+        // Reset
+        // Clean up and start parsing
         virtual void reset();
 
         // Push to middle stack
@@ -94,9 +97,11 @@ namespace OPParser {
         void midPop();
 
         // Parse a string
+        // Push data to lexers
         virtual void parse(const Input &input);
 
         // Finish parsing
+        // Will call reset() here
         virtual void finish(vector <PToken> &result);
     };
 }

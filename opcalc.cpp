@@ -309,7 +309,7 @@ namespace OPParser {
         }
     };
 
-    // Operators appear after numbers
+    // Operators appear after number
     class AfterNumLexer: public Lexer {
     public:
         bool tryGetToken(InputIter &now, const InputIter &end, Parser &parser) {
@@ -351,6 +351,7 @@ namespace OPParser {
         }
     };
 
+    // Operators appear without number before
     class NoNumLexer: public Lexer {
     public:
         bool tryGetToken(InputIter &now, const InputIter &end, Parser &parser) {
@@ -377,6 +378,7 @@ namespace OPParser {
         }
     };
 
+    // Left bracket
     class LeftLexer: public Lexer {
     public:
         bool tryGetToken(InputIter &now, const InputIter &end, Parser &parser) {
@@ -392,6 +394,7 @@ namespace OPParser {
         }
     };
 
+    // Right bracket
     class RightLexer: public Lexer {
     public:
         bool tryGetToken(InputIter &now, const InputIter &end, Parser &parser) {
@@ -407,6 +410,7 @@ namespace OPParser {
         }
     };
 
+    // Skip blank, like white spaces
     class BlankLexer: public Lexer {
     public:
         bool tryGetToken(InputIter &now, const InputIter &end, Parser &parser) {
@@ -424,13 +428,8 @@ namespace OPParser {
         }
     };
 
-    class FinLexer: public Lexer {
-    public:
-        //
-    };
-
     void Calc::init() {
-        lexers.clear();
+        Parser::init();
 
         {
             PLexer lexer(new NumLexer());
@@ -457,8 +456,6 @@ namespace OPParser {
             lexers[stateNum].push_back(lexer);
             lexers[stateOper].push_back(lexer);
         }
-
-        reset();
     }
 
     CalcData Calc::finishByData() {
@@ -467,6 +464,7 @@ namespace OPParser {
 
         check(result.size() == 1, "Bad result");
 
+        // Get result
         PNumToken tResult = dynamic_pointer_cast <NumToken> (
             result.back()
         );

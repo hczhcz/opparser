@@ -3,11 +3,11 @@
 #include "opparser.hpp"
 
 namespace OPParser {
-    void error(const string info) {
+    void error(const string &info) {
         throw runtime_error(info);
     }
 
-    void check(const bool condition, const string info) {
+    void check(const bool condition, const string &info) {
         if (!condition) {
             error(info);
         }
@@ -39,6 +39,11 @@ namespace OPParser {
             return "<fin>";
         }
     };
+
+    void Parser::init() {
+        reset();
+        lexers.clear();
+    }
 
     void Parser::reset() {
         state = stateInitial;

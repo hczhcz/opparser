@@ -1,15 +1,10 @@
 #include <iostream>
-#include "opcalc.hpp"
-
-using namespace std;
-using namespace OPParser;
+#include "opcalcrepl.hpp"
 
 int main() {
-    Calc calc;
+    using namespace std;
+    using namespace OPParser;
 
-    Input test("1+1");
-
-    calc.init();
-    calc.parse(test);
-    cout<<calc.finishByData();
+    CalcRepl calc;
+    calc.run("q");
 }
