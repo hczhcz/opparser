@@ -5,6 +5,7 @@
 #include <vector>
 #include <map>
 #include <string>
+
 // The namespace of the operator-precedence parser
 namespace OPParser {
     using namespace std;
