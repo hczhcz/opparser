@@ -36,7 +36,7 @@ namespace OPParser {
     // Throw error
     void error(const string &info);
 
-    // Runtime checking like assert
+    // Runtime checking (like assert)
     // If failed, throw error
     void check(const bool condition, const string &info);
 
@@ -58,7 +58,7 @@ namespace OPParser {
         virtual Level levelRight() = 0;
 
         // Push to middle stack
-        // To change state of lexers
+        // To change the state of lexers
         virtual void onPush(Parser &parser) = 0;
 
         // Pop from middle stack

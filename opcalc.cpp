@@ -305,7 +305,7 @@ namespace OPParser {
             unsigned index = 0;
 
             // Read number to buffer
-            for (; index < 255; ++index) {
+            for (; (index < 255) && (now != end); ++index) {
                 switch (*now) {
                 case '0':
                 case '1':
