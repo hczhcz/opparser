@@ -34,10 +34,6 @@ namespace OPParser {
         void onPop(Parser &parser) {
             check(parser.midStack.empty(), "Input not completed");
         }
-
-        Input show() {
-            return "<fin>";
-        }
     };
 
     void Parser::init() {

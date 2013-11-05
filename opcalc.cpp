@@ -49,10 +49,6 @@ namespace OPParser {
         void onPop(Parser &parser) {
             parser.outStack.push_back(shared_from_this());
         }
-
-        Input show() {
-            return "<num>";
-        }
     };
 
     // Bi-operators
@@ -113,23 +109,6 @@ namespace OPParser {
             case otPwr:
                 tLeft->value = pow(tLeft->value, tRight->value);
                 break;
-            }
-        }
-
-        Input show() {
-            switch (type) {
-            case otAdd:
-                return "+";
-            case otSub:
-                return "-";
-            case otMul:
-                return "*";
-            case otDiv:
-                return "/";
-            case otMod:
-                return "%";
-            case otPwr:
-                return "^";
             }
         }
     };
@@ -227,17 +206,6 @@ namespace OPParser {
                 break;
             }
         }
-
-        Input show() {
-            switch (type) {
-            case otPos:
-                return "+";
-            case otNeg:
-                return "-";
-            case otFac:
-                return "!";
-            }
-        }
     };
 
     // Left bracket
@@ -256,10 +224,6 @@ namespace OPParser {
         }
 
         void onPop(Parser &parser) {
-        }
-
-        Input show() {
-            return "(";
         }
     };
 
@@ -288,10 +252,6 @@ namespace OPParser {
             check(tLB != nullptr, "Bad left bracket");
 
             parser.midPop();
-        }
-
-        Input show() {
-            return ")";
         }
     };
 

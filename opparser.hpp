@@ -65,10 +65,6 @@ namespace OPParser {
         // To build final data (using data from output stack)
         // And to push data to output stack
         virtual void onPop(Parser &parser) = 0;
-
-        // Show as string (input form)
-        // For debug only
-        virtual Input show() = 0;
     };
 
     // The operator-precedence parser
