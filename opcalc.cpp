@@ -6,14 +6,31 @@
 
 namespace OPParser {
     enum BiOperType {otAdd, otSub, otMul, otDiv, otMod, otPwr};
-    enum MonoOperType {otPos, otNeg, otFac};
+    enum MonoOperType {mtPos, mtNeg, mtFac};
+    enum FuncType {ftSin, ftCos, ftTan, ftASin, ftACos, ftATan,
+                   ftSinH, ftCosH, ftTanH, ftASinH, ftACosH, ftATanH,
+                   ftLog, ftLog10, ftLog2, ftSqr, ftSqrt,
+                   ftCeil, ftFloor, ftTrunc, ftRound};
+
+    map <Input, FuncType> GetFunc = {
+        {"sin", ftSin}, {"cos", ftCos}, {"tan", ftTan}, {"asin", ftASin}, {"acos", ftACos}, {"atan", ftATan},
+        {"sinh", ftSinH}, {"cosh", ftCosH}, {"tanh", ftTanH}, {"asinh", ftASinH}, {"acosh", ftACosH}, {"atanh", ftATanH},
+        {"log", ftLog}, {"log10", ftLog10}, {"log2", ftLog2}, {"sqr", ftSqr}, {"sqrt", ftSqrt},
+        {"ceil", ftCeil}, {"floor", ftFloor}, {"trunc", ftTrunc}, {"round", ftRound}
+    };
+
+    map <Input, CalcData> GetConst = {
+        {"pi", M_PI}, {"e", M_E}, {"tau", 2 * M_PI}, {"phi", (sqrt(5) - 1) / 2}
+    };
 
     class NumToken;
+    class FuncToken;
     class BiToken;
     class MonoToken;
     class LeftToken;
     class RightToken;
     typedef shared_ptr <NumToken  > PNumToken;
+    typedef shared_ptr <FuncToken > PFuncToken;
     typedef shared_ptr <BiToken   > PBiToken;
     typedef shared_ptr <MonoToken > PMonoToken;
     typedef shared_ptr <LeftToken > PLeftToken;
@@ -27,6 +44,7 @@ namespace OPParser {
         CalcData value = 0;
     public:
         friend class Calc;
+        friend class FuncToken;
         friend class BiToken;
         friend class MonoToken;
 
@@ -48,6 +66,106 @@ namespace OPParser {
 
         void onPop(Parser &parser) {
             parser.outStack.push_back(shared_from_this());
+        }
+    };
+
+    // Functions
+    class FuncToken: public Token {
+    protected:
+        FuncType type;
+    public:
+        FuncToken(FuncType toType) {
+            type = toType;
+        }
+
+        Level levelLeft() {
+            return levelConst;
+        }
+
+        Level levelRight() {
+            return levelFuncR;
+        }
+
+        void onPush(Parser &parser) {
+            parser.state = stateNum;
+        }
+
+        void onPop(Parser &parser) {
+            check(!parser.outStack.empty(), "No operand");
+
+            // Cast the token
+            // Tokens in outStack should be numbers
+            PNumToken tTarget = dynamic_pointer_cast <NumToken> (
+                parser.outStack.back()
+            );
+            check(tTarget != nullptr, "Unknown operand");
+
+            // Do calculation
+            switch (type) {
+            case ftSin:
+                tTarget->value = sin(tTarget->value);
+                break;
+            case ftCos:
+                tTarget->value = cos(tTarget->value);
+                break;
+            case ftTan:
+                tTarget->value = tan(tTarget->value);
+                break;
+            case ftASin:
+                tTarget->value = asin(tTarget->value);
+                break;
+            case ftACos:
+                tTarget->value = acos(tTarget->value);
+                break;
+            case ftATan:
+                tTarget->value = atan(tTarget->value);
+                break;
+            case ftSinH:
+                tTarget->value = sinh(tTarget->value);
+                break;
+            case ftCosH:
+                tTarget->value = cosh(tTarget->value);
+                break;
+            case ftTanH:
+                tTarget->value = tanh(tTarget->value);
+                break;
+            case ftASinH:
+                tTarget->value = asinh(tTarget->value);
+                break;
+            case ftACosH:
+                tTarget->value = acosh(tTarget->value);
+                break;
+            case ftATanH:
+                tTarget->value = atanh(tTarget->value);
+                break;
+            case ftLog:
+                tTarget->value = log(tTarget->value);
+                break;
+            case ftLog10:
+                tTarget->value = log10(tTarget->value);
+                break;
+            case ftLog2:
+                tTarget->value = log2(tTarget->value);
+                break;
+            case ftSqr:
+                tTarget->value *= tTarget->value;
+                break;
+            case ftSqrt:
+                tTarget->value = sqrt(tTarget->value);
+                break;
+            case ftCeil:
+                tTarget->value = ceil(tTarget->value);
+                break;
+            case ftFloor:
+                tTarget->value = floor(tTarget->value);
+                break;
+            case ftTrunc:
+                tTarget->value = trunc(tTarget->value);
+                break;
+            case ftRound:
+                tTarget->value = round(tTarget->value);
+                break;
+            }
         }
     };
 
@@ -128,7 +246,7 @@ namespace OPParser {
         }
 
         Level levelRight() {
-            const Level toMap[] = {levelPosNegR, levelPosNegR, levelConst};
+            const Level toMap[] = {levelFuncR, levelFuncR, levelConst};
             return toMap[type];
         }
 
@@ -149,13 +267,13 @@ namespace OPParser {
 
             // Do calculation
             switch (type) {
-            case otPos:
+            case mtPos:
                 // tTarget->value = +tTarget->value;
                 break;
-            case otNeg:
+            case mtNeg:
                 tTarget->value = -tTarget->value;
                 break;
-            case otFac:
+            case mtFac:
                 // x! == gamma(x + 1)
                 CalcData &x = tTarget->value;
                 if (x < 0) {
@@ -261,48 +379,72 @@ namespace OPParser {
     class NumLexer: public Lexer {
     public:
         bool tryGetToken(InputIter &now, const InputIter &end, Parser &parser) {
-            char buffer[256];
-            unsigned index = 0;
+            Input buffer = "";
+
+            if ((*now >= '0' && *now <= '9') || *now == '.') {
+                // Accepted
+            } else {
+                // Not a number
+                return 0;
+            }
 
             // Read number to buffer
-            for (; (index < 255) && (now != end); ++index) {
-                switch (*now) {
-                case '0':
-                case '1':
-                case '2':
-                case '3':
-                case '4':
-                case '5':
-                case '6':
-                case '7':
-                case '8':
-                case '9':
-                case '.':
-                    buffer[index] = *now;
-                    ++now;
-                    continue;
+            for (; now != end; ++now) {
+                if ((*now >= '0' && *now <= '9') || *now == '.') {
+                    buffer += *now;
+                } else {
+                    break;
                 }
-                break;
             }
 
-            if (index == 0) {
-                // If not accepted
-                return 0;
+            // Generate token
+
+            char *endPtr;
+            CalcData number = strtod(buffer.c_str(), &endPtr);
+
+            check(*endPtr == 0, "Wrong format of number");
+
+            PToken token(new NumToken(number));
+            parser.midPush(token);
+            return 1;
+        }
+    };
+
+    // Functions and constants
+    class NameLexer: public Lexer {
+    public:
+        bool tryGetToken(InputIter &now, const InputIter &end, Parser &parser) {
+            Input buffer = "";
+
+            if ((*now >= 'A' && *now <= 'Z') || (*now >= 'a' && *now <= 'z') || *now == '_') {
+                // Accepted
             } else {
-                // If accepted
-                // Generate token
-
-                buffer[index] = 0;
-
-                char *endPtr;
-                CalcData number = strtod(buffer, &endPtr);
-
-                check(*endPtr == 0, "Wrong format of number");
-
-                PToken token(new NumToken(number));
-                parser.midPush(token);
-                return 1;
+                // Not a name
+                return 0;
             }
+
+            // Read name to buffer
+            for (; now != end; ++now) {
+                if ((*now >= 'A' && *now <= 'Z') || (*now >= 'a' && *now <= 'z') || *now == '_' || (*now >= '0' && *now <= '9')) {
+                    buffer += *now;
+                } else {
+                    break;
+                }
+            }
+
+            // Generate token
+
+            PToken token(nullptr);
+            if (GetFunc.find(buffer) != GetFunc.end()) {
+                token = PToken(new FuncToken(GetFunc[buffer]));
+            } else if (GetConst.find(buffer) != GetConst.end()) {
+                token = PToken(new NumToken(GetConst[buffer]));
+            } else {
+                error("Unknown function or constant");
+            }
+
+            parser.midPush(token);
+            return 1;
         }
     };
 
@@ -333,7 +475,7 @@ namespace OPParser {
                 token = PToken(new BiToken(otPwr));
                 break;
             case '!':
-                token = PToken(new MonoToken(otFac));
+                token = PToken(new MonoToken(mtFac));
                 break;
             }
 
@@ -357,10 +499,10 @@ namespace OPParser {
             // Cast and recognise token
             switch (*now) {
             case '+':
-                token = PToken(new MonoToken(otPos));
+                token = PToken(new MonoToken(mtPos));
                 break;
             case '-':
-                token = PToken(new MonoToken(otNeg));
+                token = PToken(new MonoToken(mtNeg));
                 break;
             }
 
@@ -430,6 +572,10 @@ namespace OPParser {
 
         {
             PLexer lexer(new NumLexer());
+            lexers[stateNum].push_back(lexer);
+        }
+        {
+            PLexer lexer(new NameLexer());
             lexers[stateNum].push_back(lexer);
         }
         {
