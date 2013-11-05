@@ -27,23 +27,41 @@ Have fun
 
 	> 1+1
 	  = 2
-	> 2.5!
-	  = 3.32335
-	> 1/(37%3)
-	  = 1
+	> phi
+	  = 0.618034
+	> e^-1
+	  = 0.367879
 	> 3^2;3^3;3^4
 	  = 9
 	  = 27
 	  = 81
+	> tau/2-pi
+	  = 0
+	> sin(pi/4)^2
+	  = 0.5
+	> log10 1000
+	  = 3
+	> 2.5!
+	  = 3.32335
+	> 1/(37%3)
+	  = 1
 	> 1/0
 	  = inf
+	> log(0)
+	  = -inf
+	>
+	> .2+2.
+	  = 2.2
+	> --1  -   3 ;  ; ;;;
+	  = -2
 	> +
 	  # No operand
 	> aaa
 	  # Unknown token
-	> --1  -   3 ;  ; ;;;
-	  = -2
+	> ..2
+	  # Wrong format of number
 	> q
+
 
 Implement your own language
 ---
