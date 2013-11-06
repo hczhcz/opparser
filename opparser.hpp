@@ -74,18 +74,24 @@ namespace OPParser {
     protected:
         // Map of lexers chains
         map <State, vector <PLexer> > lexers = {};
+
+        // Reset
+        // Clean up and start parsing
+        void reset();
+
+        // Add first-round lexers
+        virtual void addFirstLexers() = 0;
+
+        // Add last-round lexers
+        virtual void addLastLexers() = 0;
     public:
-        State state;
+        State state = stateInitial;
         vector <PToken> midStack = {};
         vector <PToken> outStack = {};
 
         // Initialization
         // Will call reset() here
-        virtual void init();
-
-        // Reset
-        // Clean up and start parsing
-        virtual void reset();
+        void init();
 
         // Push to middle stack
         void midPush(PToken token);
@@ -95,11 +101,11 @@ namespace OPParser {
 
         // Parse a string
         // Push data to lexers
-        virtual void parse(const Input &input);
+        void parse(const Input &input);
 
         // Finish parsing
         // Will call reset() here
-        virtual void finish(vector <PToken> &result);
+        void finish(vector <PToken> &result);
     };
 }
 

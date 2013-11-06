@@ -36,15 +36,17 @@ namespace OPParser {
         }
     };
 
-    void Parser::init() {
-        reset();
-        lexers.clear();
-    }
-
     void Parser::reset() {
         state = stateInitial;
         midStack.clear();
         outStack.clear();
+    }
+
+    void Parser::init() {
+        reset();
+        lexers.clear();
+        addFirstLexers();
+        addLastLexers();
     }
 
     void Parser::midPush(PToken token) {

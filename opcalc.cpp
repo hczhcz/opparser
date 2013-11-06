@@ -551,9 +551,7 @@ namespace OPParser {
         }
     };
 
-    void Calc::init() {
-        Parser::init();
-
+    void Calc::addFirstLexers() {
         {
             PLexer lexer(new NumLexer());
             lexers[stateNum].push_back(lexer);
@@ -578,6 +576,9 @@ namespace OPParser {
             PLexer lexer(new RightLexer());
             lexers[stateOper].push_back(lexer);
         }
+    }
+
+    void Calc::addLastLexers() {
         {
             PLexer lexer(new BlankLexer());
             lexers[stateNum].push_back(lexer);

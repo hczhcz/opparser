@@ -61,7 +61,7 @@ Have fun
 	> +
 	  # No operand
 	> aaa
-	  # Unknown token
+	  # Unknown function or constant
 	> ..2
 	  # Wrong format of number
 	> q

@@ -14,11 +14,10 @@ namespace OPParser {
 
         string exitSign = "q";
         bool running = 0;
-    public:
-        // Initialization
-        // Push ";" lexer
-        void init();
 
+        // Push ";" lexer
+        void addLastLexers();
+    public:
         // Read from input stream
         void read();
 

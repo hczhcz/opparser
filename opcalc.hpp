@@ -10,11 +10,13 @@ namespace OPParser {
     // Calculator, to calculate arithmetic expressions
     // A simple example of implementing of the parser
     class Calc: public Parser {
-    public:
-        // Initialization
-        // Push lexers to the parser
-        void init();
+    protected:
+        // Push math tokens' lexers to the parser
+        void addFirstLexers();
 
+        // Push blank and implicit multiplication
+        void addLastLexers();
+    public:
         // Finish parsing and return result
         CalcData finishByData();
     };

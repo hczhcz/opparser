@@ -6,9 +6,11 @@ namespace OPParser {
     public:
         bool tryGetToken(InputIter &now, const InputIter &end, Parser &parser) {
             if (*now == ';') {
+                ((CalcRepl &) parser).write();
+
+                // If bad finish, throw the error with nothing done
                 ++now;
 
-                ((CalcRepl &) parser).write();
                 return 1;
             } else {
                 return 0;
@@ -16,15 +18,15 @@ namespace OPParser {
         }
     };
 
-    void CalcRepl::init() {
-        Calc::init();
-
+    void CalcRepl::addLastLexers() {
         {
             PLexer lexer(new GoOnLexer());
             // As number state is unusual
             lexers[stateNum].push_back(lexer);
             lexers[stateOper].push_back(lexer);
         }
+
+        Calc::addLastLexers();
     }
 
     void CalcRepl::read() {
