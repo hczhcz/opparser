@@ -72,7 +72,7 @@ namespace OPParser {
     // Must initialize before use
     class Parser {
     protected:
-        // Map of lexer chains
+        // Map of lexers chains
         map <State, vector <PLexer> > lexers = {};
     public:
         State state;

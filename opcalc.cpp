@@ -539,6 +539,18 @@ namespace OPParser {
         }
     };
 
+    // Implicit multiplication
+    // Like "3 pi = 3 * pi"
+    // Should be the last one in the lexers chain
+    class ImplicitMulLexer: public Lexer {
+    public:
+        bool tryGetToken(InputIter &now, const InputIter &end, Parser &parser) {
+            PToken token(new BiToken(otMul));
+            parser.midPush(token);
+            return 1;
+        }
+    };
+
     void Calc::init() {
         Parser::init();
 
@@ -569,6 +581,10 @@ namespace OPParser {
         {
             PLexer lexer(new BlankLexer());
             lexers[stateNum].push_back(lexer);
+            lexers[stateOper].push_back(lexer);
+        }
+        {
+            PLexer lexer(new ImplicitMulLexer());
             lexers[stateOper].push_back(lexer);
         }
     }

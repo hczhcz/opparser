@@ -82,7 +82,7 @@ namespace OPParser {
         while (now != end) {
             vector <PLexer> &nowlexers = lexers[state];
 
-            // Scan the lexer chain
+            // Scan the lexers chain
             vector <PLexer>::iterator iter = nowlexers.begin();
             while (1) {
                 check(iter != nowlexers.end(), "Unknown token");
