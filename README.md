@@ -123,13 +123,22 @@ Write lexers
 
 Add lexers to the parser
 
-	void SomeParser::init() {
-	    Parser::init();
+	void SomeParser::addFirstLexers() {
+	    Parser::addFirstLexers();
 
 	    PLexer lexer(new SomeLexer());
 	    lexers[stateNum].push_back(lexer);
 
 	    // More...
+	}
+
+	void SomeParser::addLastLexers() {
+	    PLexer lexer(new SomeLexer());
+	    lexers[stateNum].push_back(lexer);
+
+	    // More...
+
+	    Parser::addLastLexers();
 	}
 
 Use the parser
@@ -142,4 +151,3 @@ Use the parser
 	parser.finish(result);
 
 	// Do something
-
