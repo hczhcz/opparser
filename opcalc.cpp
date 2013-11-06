@@ -9,18 +9,20 @@ namespace OPParser {
     enum MonoOperType {mtPos, mtNeg, mtFac};
     enum FuncType {ftSin, ftCos, ftTan, ftASin, ftACos, ftATan,
                    ftSinH, ftCosH, ftTanH, ftASinH, ftACosH, ftATanH,
-                   ftLog, ftLog10, ftLog2, ftSqr, ftSqrt,
+                   ftLog, ftLog10, ftLog2, ftSqr, ftSqrt, ftAbs,
+                   ftErf, ftErfc, ftGamma, ftLGamma,
                    ftCeil, ftFloor, ftTrunc, ftRound};
 
     map <Input, FuncType> GetFunc = {
         {"sin", ftSin}, {"cos", ftCos}, {"tan", ftTan}, {"asin", ftASin}, {"acos", ftACos}, {"atan", ftATan},
         {"sinh", ftSinH}, {"cosh", ftCosH}, {"tanh", ftTanH}, {"asinh", ftASinH}, {"acosh", ftACosH}, {"atanh", ftATanH},
-        {"log", ftLog}, {"log10", ftLog10}, {"log2", ftLog2}, {"sqr", ftSqr}, {"sqrt", ftSqrt},
+        {"log", ftLog}, {"log10", ftLog10}, {"log2", ftLog2}, {"sqr", ftSqr}, {"sqrt", ftSqrt}, {"abs", ftAbs},
+        {"erf", ftErf}, {"erfc", ftErfc}, {"gamma", ftGamma}, {"lgamma", ftLGamma},
         {"ceil", ftCeil}, {"floor", ftFloor}, {"trunc", ftTrunc}, {"round", ftRound}
     };
 
     map <Input, CalcData> GetConst = {
-        {"pi", M_PI}, {"e", M_E}, {"tau", 2 * M_PI}, {"phi", (sqrt(5) - 1) / 2}
+        {"pi", M_PI}, {"e", M_E}, {"tau", 2 * M_PI}, {"phi", (sqrt(5) - 1) / 2}, {"inf", INFINITY}, {"nan", NAN}
     };
 
     class NumToken;
@@ -153,6 +155,21 @@ namespace OPParser {
             case ftSqrt:
                 tTarget->value = sqrt(tTarget->value);
                 break;
+            case ftAbs:
+                tTarget->value = abs(tTarget->value);
+                break;
+            case ftErf:
+                tTarget->value = erf(tTarget->value);
+                break;
+            case ftErfc:
+                tTarget->value = erfc(tTarget->value);
+                break;
+            case ftGamma:
+                tTarget->value = tgamma(tTarget->value);
+                break;
+            case ftLGamma:
+                tTarget->value = lgamma(tTarget->value);
+                break;
             case ftCeil:
                 tTarget->value = ceil(tTarget->value);
                 break;
@@ -275,52 +292,7 @@ namespace OPParser {
                 break;
             case mtFac:
                 // x! == gamma(x + 1)
-                CalcData &x = tTarget->value;
-                if (x < 0) {
-                    x = -NAN;
-                } else if (x < 0.7) {
-                    // Taylor Series
-                    const CalcData x1  = x;         // m0 d1
-                    const CalcData x2  = x1 * x1;   // m1 d2
-                    const CalcData x3  = x2 * x1;   // m2 d3
-                    const CalcData x4  = x2 * x2;   // m2 d3
-                    const CalcData x5  = x4 * x1;   // m3 d4
-                    const CalcData x6  = x4 * x2;   // m3 d4
-                    const CalcData x7  = x4 * x3;   // m3 d4
-                    const CalcData x8  = x4 * x4;   // m3 d4
-                    const CalcData x9  = x8 * x1;   // m4 d5
-                    const CalcData x10 = x8 * x2;   // m4 d5
-                    const CalcData x11 = x8 * x3;   // m4 d5
-                    x =
-                        + 1.00000000000000000000       - 0.57721566490153286061 * x1
-                        + 0.98905599532797255540 * x2  - 0.90747907608088628902 * x3
-                        + 0.98172808683440018734 * x4  - 0.98199506890314520210 * x5
-                        + 0.99314911462127619315 * x6  - 0.99600176044243153397 * x7
-                        + 0.99810569378312892198 * x8  - 0.99902526762195486779 * x9
-                        + 0.85077168542087678    * x10 - 0.37664551140085667    * x11
-                    ;
-                } else {
-                    // Stirling Series
-                    const CalcData x1  = 1 / x;     // m0 d1
-                    const CalcData x2  = x1 * x1;   // m1 d2
-                    const CalcData x3  = x2 * x1;   // m2 d3
-                    const CalcData x4  = x2 * x2;   // m2 d3
-                    const CalcData x5  = x4 * x1;   // m3 d4
-                    const CalcData x6  = x4 * x2;   // m3 d4
-                    const CalcData x7  = x4 * x3;   // m3 d4
-                    const CalcData x8  = x4 * x4;   // m3 d4
-                    const CalcData x9  = x8 * x1;   // m4 d5
-                    const CalcData x10 = x8 * x2;   // m4 d5
-                    const CalcData x11 = x8 * x3;   // m4 d5
-                    x = (
-                        + 0.00016579876471393590    * x11 - 0.0006721951190716635     * x10
-                        + 0.00083949872067208727999 * x9  - 0.000051717909082605921934 * x8
-                        - 0.00059216643735369388286 * x7  + 0.000069728137583658577743 * x6
-                        + 0.00078403922172006662747 * x5  - 0.00022947209362139917695  * x4
-                        - 0.0026813271604938271605  * x3  + 0.0034722222222222222222   * x2
-                        + 0.083333333333333333333   * x1  + 1.0000000000000000000
-                    ) * sqrt(2.0 * M_PI) * pow(x, x + 0.5) * exp(-x);
-                }
+                tTarget->value = tgamma(tTarget->value + 1);
                 break;
             }
         }
