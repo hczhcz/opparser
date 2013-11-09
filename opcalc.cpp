@@ -22,7 +22,7 @@ namespace OPParser {
     };
 
     map <Input, CalcData> GetConst = {
-        {"pi", M_PI}, {"e", M_E}, {"tau", 2 * M_PI}, {"phi", (sqrt(5) - 1) / 2}, {"inf", INFINITY}, {"nan", NAN}
+        {"pi", M_PI}, {"e", M_E}, {"tau", 2 * M_PI}, {"phi", (sqrt(5) - 1) / 2}, {"inf", INFINITY}, {"nan", NAN}, {"ans", 0}
     };
 
     class NumToken;
@@ -602,6 +602,8 @@ namespace OPParser {
         );
 
         check(tResult != nullptr, "Bad result");
+
+        GetConst["ans"] = tResult->value;
 
         return tResult->value;
     }
