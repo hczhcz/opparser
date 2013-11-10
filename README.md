@@ -45,7 +45,7 @@ Have fun
 	  = 0.842701
 	> 2.5!
 	  = 3.32335
-	> -.5!^2
+	> (-.5)!^2
 	  = 3.14159
 	> ans
 	  = 3.14159
@@ -73,7 +73,6 @@ Have fun
 	> ..2
 	  # Wrong format of number
 	> q
-
 
 Implement your own language
 ---

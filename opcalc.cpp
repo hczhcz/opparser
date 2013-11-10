@@ -292,7 +292,7 @@ namespace OPParser {
         }
 
         Level levelRight() {
-            const Level toMap[] = {levelFuncR, levelFuncR, levelConst};
+            const Level toMap[] = {levelAddSubR, levelAddSubR, levelConst};
             return toMap[type];
         }
 
