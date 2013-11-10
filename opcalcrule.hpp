@@ -18,6 +18,7 @@ namespace OPParser {
 
     const State stateNum = stateInitial;
     const State stateOper = stateInitial + 1;
+    const State stateAssign = stateInitial + 2;
 }
 
 #endif

@@ -27,16 +27,18 @@ namespace OPParser {
 
     class NumToken;
     class FuncToken;
+    class AssignToken;
     class BiToken;
     class MonoToken;
     class LeftToken;
     class RightToken;
-    typedef shared_ptr <NumToken  > PNumToken;
-    typedef shared_ptr <FuncToken > PFuncToken;
-    typedef shared_ptr <BiToken   > PBiToken;
-    typedef shared_ptr <MonoToken > PMonoToken;
-    typedef shared_ptr <LeftToken > PLeftToken;
-    typedef shared_ptr <RightToken> PRightToken;
+    typedef shared_ptr <NumToken    > PNumToken;
+    typedef shared_ptr <FuncToken   > PFuncToken;
+    typedef shared_ptr <AssignToken > PAssignToken;
+    typedef shared_ptr <BiToken     > PBiToken;
+    typedef shared_ptr <MonoToken   > PMonoToken;
+    typedef shared_ptr <LeftToken   > PLeftToken;
+    typedef shared_ptr <RightToken  > PRightToken;
 
     // Tokens
 
@@ -47,12 +49,11 @@ namespace OPParser {
     public:
         friend class Calc;
         friend class FuncToken;
+        friend class AssignToken;
         friend class BiToken;
         friend class MonoToken;
 
-        NumToken(CalcData toValue) {
-            value = toValue;
-        }
+        NumToken(CalcData toValue): value(toValue) {}
 
         Level levelLeft() {
             return levelConst;
@@ -76,9 +77,7 @@ namespace OPParser {
     protected:
         FuncType type;
     public:
-        FuncToken(FuncType toType) {
-            type = toType;
-        }
+        FuncToken(FuncType toType): type(toType) {}
 
         Level levelLeft() {
             return levelConst;
@@ -186,14 +185,46 @@ namespace OPParser {
         }
     };
 
+    // Assignation (reference)
+    class AssignToken: public Token {
+    protected:
+        Input name;
+    public:
+        AssignToken(Input &toName): name(toName) {}
+
+        Level levelLeft() {
+            return levelFlushAll;
+        }
+
+        Level levelRight() {
+            return levelConst;
+        }
+
+        void onPush(Parser &parser) {
+            parser.state = stateOper;
+        }
+
+        void onPop(Parser &parser) {
+            check(!parser.outStack.empty(), "No operand");
+
+            // Cast the token
+            // Tokens in outStack should be numbers
+            PNumToken tTarget = dynamic_pointer_cast <NumToken> (
+                parser.outStack.back()
+            );
+            check(tTarget != nullptr, "Unknown operand");
+
+            // Do assignation
+            GetConst[name] = tTarget->value;
+        }
+    };
+
     // Bi-operators
     class BiToken: public Token {
     protected:
         BiOperType type;
     public:
-        BiToken(BiOperType toType) {
-            type = toType;
-        }
+        BiToken(BiOperType toType): type(toType) {}
 
         Level levelLeft() {
             const Level toMap[] = {levelAddSubL, levelAddSubL, levelMulDivL, levelMulDivL, levelMulDivL, levelPwrL};
@@ -253,9 +284,7 @@ namespace OPParser {
     protected:
         MonoOperType type;
     public:
-        MonoToken(MonoOperType toType) {
-            type = toType;
-        }
+        MonoToken(MonoOperType toType): type(toType) {}
 
         Level levelLeft() {
             const Level toMap[] = {levelConst, levelConst, levelFacL};
@@ -420,6 +449,56 @@ namespace OPParser {
         }
     };
 
+    // Constants reference (for assignation)
+    class NameRefLexer: public Lexer {
+    public:
+        bool tryGetToken(InputIter &now, const InputIter &end, Parser &parser) {
+            Input buffer = "";
+
+            if ((*now >= 'A' && *now <= 'Z') || (*now >= 'a' && *now <= 'z') || *now == '_') {
+                // Accepted
+            } else {
+                // Not a name
+                return 0;
+            }
+
+            // Read name to buffer
+            for (; now != end; ++now) {
+                if ((*now >= 'A' && *now <= 'Z') || (*now >= 'a' && *now <= 'z') || *now == '_' || (*now >= '0' && *now <= '9')) {
+                    buffer += *now;
+                } else {
+                    break;
+                }
+            }
+
+            // Generate token
+
+            PToken token(new AssignToken(buffer));
+
+            check(GetFunc.find(buffer) == GetFunc.end(), "Can not assign to a function");
+
+            parser.midPush(token);
+            return 1;
+        }
+    };
+
+    // Assignations
+    // 1 -> x
+    class AssignLexer: public Lexer {
+    public:
+        bool tryGetToken(InputIter &now, const InputIter &end, Parser &parser) {
+            if (*now == '-' && now + 1 != end && *(now + 1) == '>') {
+                // Accepted
+                now += 2;
+                parser.state = stateAssign;
+                return 1;
+            } else {
+                // Not accepted
+                return 0;
+            }
+        }
+    };
+
     // Operators appear after number
     class AfterNumLexer: public Lexer {
     public:
@@ -561,6 +640,14 @@ namespace OPParser {
             lexers[stateNum].push_back(lexer);
         }
         {
+            PLexer lexer(new NameRefLexer());
+            lexers[stateAssign].push_back(lexer);
+        }
+        {
+            PLexer lexer(new AssignLexer());
+            lexers[stateOper].push_back(lexer);
+        }
+        {
             PLexer lexer(new AfterNumLexer());
             lexers[stateOper].push_back(lexer);
         }
@@ -583,6 +670,7 @@ namespace OPParser {
             PLexer lexer(new BlankLexer());
             lexers[stateNum].push_back(lexer);
             lexers[stateOper].push_back(lexer);
+            lexers[stateAssign].push_back(lexer);
         }
         {
             PLexer lexer(new ImplicitMulLexer());
