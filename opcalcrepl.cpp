@@ -70,7 +70,7 @@ namespace OPParser {
                     (*out)<<"  ~ "<<"- ("<<found2->second<<")"<<endl;
                 } else {
                     // Find any ~= result
-                    if (nearresult != result) {
+                    if (nearresult != (CalcNearData)result) {
                         (*out)<<"  ~ "<<nearresult<<endl;
                     }
                 }
