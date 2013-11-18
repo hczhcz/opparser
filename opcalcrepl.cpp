@@ -38,7 +38,7 @@ namespace OPParser {
 
         // Read
         (*in).clear();
-        Input input = "";
+        Input input = L"";
         getline((*in), input);
         (*in).sync();
 

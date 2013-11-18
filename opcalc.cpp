@@ -14,15 +14,15 @@ namespace OPParser {
                    ftCeil, ftFloor, ftTrunc, ftRound};
 
     map <Input, FuncType> GetFunc = {
-        {"sin", ftSin}, {"cos", ftCos}, {"tan", ftTan}, {"asin", ftASin}, {"acos", ftACos}, {"atan", ftATan},
-        {"sinh", ftSinH}, {"cosh", ftCosH}, {"tanh", ftTanH}, {"asinh", ftASinH}, {"acosh", ftACosH}, {"atanh", ftATanH},
-        {"log", ftLog}, {"log10", ftLog10}, {"log2", ftLog2}, {"sqr", ftSqr}, {"sqrt", ftSqrt}, {"abs", ftAbs},
-        {"erf", ftErf}, {"erfc", ftErfc}, {"gamma", ftGamma}, {"lgamma", ftLGamma},
-        {"ceil", ftCeil}, {"floor", ftFloor}, {"trunc", ftTrunc}, {"round", ftRound}
+        {L"sin", ftSin}, {L"cos", ftCos}, {L"tan", ftTan}, {L"asin", ftASin}, {L"acos", ftACos}, {L"atan", ftATan},
+        {L"sinh", ftSinH}, {L"cosh", ftCosH}, {L"tanh", ftTanH}, {L"asinh", ftASinH}, {L"acosh", ftACosH}, {L"atanh", ftATanH},
+        {L"log", ftLog}, {L"log10", ftLog10}, {L"log2", ftLog2}, {L"sqr", ftSqr}, {L"sqrt", ftSqrt}, {L"abs", ftAbs},
+        {L"erf", ftErf}, {L"erfc", ftErfc}, {L"gamma", ftGamma}, {L"lgamma", ftLGamma},
+        {L"ceil", ftCeil}, {L"floor", ftFloor}, {L"trunc", ftTrunc}, {L"round", ftRound}
     };
 
     map <Input, CalcData> GetConst = {
-        {"pi", M_PI}, {"e", M_E}, {"tau", 2 * M_PI}, {"phi", (sqrt(5) - 1) / 2}, {"inf", INFINITY}, {"nan", NAN}, {"ans", 0}
+        {L"pi", M_PI}, {L"e", M_E}, {L"tau", 2 * M_PI}, {L"phi", (sqrt(5) - 1) / 2}, {L"inf", INFINITY}, {L"nan", NAN}, {L"ans", 0}
     };
 
     class NumToken;
@@ -380,7 +380,7 @@ namespace OPParser {
     class NumLexer: public Lexer {
     public:
         bool tryGetToken(InputIter &now, const InputIter &end, Parser &parser) {
-            Input buffer = "";
+            Input buffer = L"";
 
             if ((*now >= '0' && *now <= '9') || *now == '.') {
                 // Accepted
@@ -400,8 +400,9 @@ namespace OPParser {
 
             // Generate token
 
-            char *endPtr;
-            CalcData number = strtod(buffer.c_str(), &endPtr);
+            // InputIter *endPtr;
+            wchar_t *endPtr;
+            CalcData number = wcstod(buffer.c_str(), &endPtr);
 
             check(*endPtr == 0, "Wrong format of number");
 
@@ -415,9 +416,9 @@ namespace OPParser {
     class NameLexer: public Lexer {
     public:
         bool tryGetToken(InputIter &now, const InputIter &end, Parser &parser) {
-            Input buffer = "";
+            Input buffer = L"";
 
-            if ((*now >= 'A' && *now <= 'Z') || (*now >= 'a' && *now <= 'z') || *now == '_') {
+            if ((*now >= 'A' && *now <= 'Z') || (*now >= 'a' && *now <= 'z') || (*now >= 128) || *now == '_') {
                 // Accepted
             } else {
                 // Not a name
@@ -426,7 +427,7 @@ namespace OPParser {
 
             // Read name to buffer
             for (; now != end; ++now) {
-                if ((*now >= 'A' && *now <= 'Z') || (*now >= 'a' && *now <= 'z') || *now == '_' || (*now >= '0' && *now <= '9')) {
+                if ((*now >= 'A' && *now <= 'Z') || (*now >= 'a' && *now <= 'z') || (*now >= 128) || *now == '_' || (*now >= '0' && *now <= '9')) {
                     buffer += *now;
                 } else {
                     break;
@@ -453,9 +454,9 @@ namespace OPParser {
     class NameRefLexer: public Lexer {
     public:
         bool tryGetToken(InputIter &now, const InputIter &end, Parser &parser) {
-            Input buffer = "";
+            Input buffer = L"";
 
-            if ((*now >= 'A' && *now <= 'Z') || (*now >= 'a' && *now <= 'z') || *now == '_') {
+            if ((*now >= 'A' && *now <= 'Z') || (*now >= 'a' && *now <= 'z') || (*now >= 128) || *now == '_') {
                 // Accepted
             } else {
                 // Not a name
@@ -464,7 +465,7 @@ namespace OPParser {
 
             // Read name to buffer
             for (; now != end; ++now) {
-                if ((*now >= 'A' && *now <= 'Z') || (*now >= 'a' && *now <= 'z') || *now == '_' || (*now >= '0' && *now <= '9')) {
+                if ((*now >= 'A' && *now <= 'Z') || (*now >= 'a' && *now <= 'z') || (*now >= 128) || *now == '_' || (*now >= '0' && *now <= '9')) {
                     buffer += *now;
                 } else {
                     break;
@@ -691,7 +692,7 @@ namespace OPParser {
 
         check(tResult != nullptr, "Bad result");
 
-        GetConst["ans"] = tResult->value;
+        GetConst[L"ans"] = tResult->value;
 
         return tResult->value;
     }

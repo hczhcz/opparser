@@ -6,5 +6,5 @@ int main() {
     using namespace OPParser;
 
     CalcRepl calc;
-    calc.run("q");
+    calc.run(L"q");
 }

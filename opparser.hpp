@@ -17,7 +17,7 @@ namespace OPParser {
     typedef int Level;
 
     // Input data type
-    typedef string Input;
+    typedef wstring Input;
 
     // Input iterator type
     typedef Input::const_iterator InputIter;

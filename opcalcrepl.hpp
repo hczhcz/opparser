@@ -9,10 +9,10 @@ namespace OPParser {
     // Calculator with REPL
     class CalcRepl: public Calc {
     protected:
-        istream *in = &cin;
-        ostream *out = &cout;
+        wistream *in = &wcin;
+        wostream *out = &wcout;
 
-        string exitSign = "q";
+        Input exitSign = L"q";
         bool running = 0;
 
         // Push ";" lexer
