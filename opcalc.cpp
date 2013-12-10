@@ -10,14 +10,14 @@ namespace OPParser {
     enum FuncType {ftSin, ftCos, ftTan, ftASin, ftACos, ftATan,
                    ftSinH, ftCosH, ftTanH, ftASinH, ftACosH, ftATanH,
                    ftLog, ftLog10, ftLog2, ftSqr, ftSqrt, ftAbs, ftSign,
-                   ftErf, ftErfc, ftGamma, ftLGamma,
+                   ftDeg, ftRad, ftErf, ftErfc, ftGamma, ftLGamma,
                    ftCeil, ftFloor, ftTrunc, ftRound, ftInt};
 
     map <Input, FuncType> GetFunc = {
         {"sin", ftSin}, {"cos", ftCos}, {"tan", ftTan}, {"asin", ftASin}, {"acos", ftACos}, {"atan", ftATan},
         {"sinh", ftSinH}, {"cosh", ftCosH}, {"tanh", ftTanH}, {"asinh", ftASinH}, {"acosh", ftACosH}, {"atanh", ftATanH},
         {"log", ftLog}, {"log10", ftLog10}, {"log2", ftLog2}, {"sqr", ftSqr}, {"sqrt", ftSqrt}, {"abs", ftAbs}, {"sign", ftSign},
-        {"erf", ftErf}, {"erfc", ftErfc}, {"gamma", ftGamma}, {"lgamma", ftLGamma},
+        {"deg", ftDeg}, {"rad", ftRad}, {"erf", ftErf}, {"erfc", ftErfc}, {"gamma", ftGamma}, {"lgamma", ftLGamma},
         {"ceil", ftCeil}, {"floor", ftFloor}, {"trunc", ftTrunc}, {"round", ftRound}, {"int", ftInt}
     };
 
@@ -159,6 +159,12 @@ namespace OPParser {
                 break;
             case ftSign:
                 tTarget->value = int(tTarget->value > 0) - int(tTarget->value < 0);
+                break;
+            case ftDeg:
+                tTarget->value *= (180 / M_PI);
+                break;
+            case ftRad:
+                tTarget->value *= (M_PI / 180);
                 break;
             case ftErf:
                 tTarget->value = erf(tTarget->value);
