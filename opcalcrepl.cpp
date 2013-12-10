@@ -89,7 +89,7 @@ namespace OPParser {
             try {
                 read();
                 write();
-            } catch (const runtime_error &e) {
+            } catch (const opparser_error &e) {
                 (*out)<<"  # "<<e.what()<<endl;
                 init();
             }

@@ -40,6 +40,12 @@ namespace OPParser {
     // If failed, throw error
     void check(const bool condition, const string &info);
 
+    // Error class
+    class opparser_error: public runtime_error {
+    public:
+        opparser_error(const string &e): runtime_error(e){}
+    };
+
     // Lexer particle, recognise token from string
     // Chain-factory, to create token
     class Lexer: public enable_shared_from_this <Lexer>{

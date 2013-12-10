@@ -4,7 +4,7 @@
 
 namespace OPParser {
     void error(const string &info) {
-        throw runtime_error(info);
+        throw opparser_error(info);
     }
 
     void check(const bool condition, const string &info) {
