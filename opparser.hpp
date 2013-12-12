@@ -60,8 +60,8 @@ namespace OPParser {
     class Token: public enable_shared_from_this <Token>{
     public:
         // Precedence levels
-        virtual Level levelLeft() = 0;
-        virtual Level levelRight() = 0;
+        virtual Level levelLeft() const = 0;
+        virtual Level levelRight() const = 0;
 
         // Push to middle stack
         // To change the state of lexers
@@ -100,7 +100,7 @@ namespace OPParser {
         void init();
 
         // Push to middle stack
-        void midPush(PToken token);
+        void midPush(const PToken token);
 
         // Pop from middle stack
         void midPop();

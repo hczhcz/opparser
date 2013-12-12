@@ -91,11 +91,11 @@ Write tokens
 
     class SomeToken: public Token {
     public:
-        Level levelLeft() {
+        Level levelLeft() const {
             return ?;
         }
 
-        Level levelRight() {
+        Level levelRight() const {
             return ?;
         }
 

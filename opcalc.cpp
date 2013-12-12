@@ -32,11 +32,11 @@ namespace OPParser {
 
         NumToken(CalcData toValue): value(toValue) {}
 
-        Level levelLeft() {
+        Level levelLeft() const {
             return levelConst;
         }
 
-        Level levelRight() {
+        Level levelRight() const {
             return levelConst;
         }
 
@@ -56,11 +56,11 @@ namespace OPParser {
     public:
         FuncToken(FuncType toType): type(toType) {}
 
-        Level levelLeft() {
+        Level levelLeft() const {
             return levelConst;
         }
 
-        Level levelRight() {
+        Level levelRight() const {
             return levelFuncR;
         }
 
@@ -181,11 +181,11 @@ namespace OPParser {
     public:
         AssignToken(Input &toName): name(toName) {}
 
-        Level levelLeft() {
+        Level levelLeft() const {
             return levelFlushAll;
         }
 
-        Level levelRight() {
+        Level levelRight() const {
             return levelConst;
         }
 
@@ -215,12 +215,12 @@ namespace OPParser {
     public:
         BiToken(BiOperType toType): type(toType) {}
 
-        Level levelLeft() {
+        Level levelLeft() const {
             const Level toMap[] = {levelAddSubL, levelAddSubL, levelMulDivL, levelMulDivL, levelMulDivL, levelPwrL};
             return toMap[type];
         }
 
-        Level levelRight() {
+        Level levelRight() const {
             const Level toMap[] = {levelAddSubR, levelAddSubR, levelMulDivR, levelMulDivR, levelMulDivR, levelPwrR};
             return toMap[type];
         }
@@ -275,12 +275,12 @@ namespace OPParser {
     public:
         MonoToken(MonoOperType toType): type(toType) {}
 
-        Level levelLeft() {
+        Level levelLeft() const {
             const Level toMap[] = {levelConst, levelConst, levelFacL};
             return toMap[type];
         }
 
-        Level levelRight() {
+        Level levelRight() const {
             const Level toMap[] = {levelAddSubR, levelAddSubR, levelConst};
             return toMap[type];
         }
@@ -319,11 +319,11 @@ namespace OPParser {
     // Left bracket
     class LeftToken: public Token {
     public:
-        Level levelLeft() {
+        Level levelLeft() const {
             return levelConst;
         }
 
-        Level levelRight() {
+        Level levelRight() const {
             return levelAcceptAll;
         }
 
@@ -338,11 +338,11 @@ namespace OPParser {
     // Right bracket
     class RightToken: public Token {
     public:
-        Level levelLeft() {
+        Level levelLeft() const {
             return levelFlushAll;
         }
 
-        Level levelRight() {
+        Level levelRight() const {
             return levelConst;
         }
 

@@ -17,11 +17,11 @@ namespace OPParser {
     // For stack allocation only
     class FinToken: public Token {
     public:
-        Level levelLeft() {
+        Level levelLeft() const {
             return numeric_limits <Level>::min();
         }
 
-        Level levelRight() {
+        Level levelRight() const {
             error("Input already finished");
             // Never reach
             return numeric_limits <Level>::max();
@@ -49,7 +49,7 @@ namespace OPParser {
         addLastLexers();
     }
 
-    void Parser::midPush(PToken token) {
+    void Parser::midPush(const PToken token) {
         token->onPush(*this);
 
         while (!midStack.empty()) {
