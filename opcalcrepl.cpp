@@ -1,5 +1,4 @@
 #include "opcalcrepl.hpp"
-#include "opcalcnear.hpp"
 
 namespace OPParser {
     // Semicolon

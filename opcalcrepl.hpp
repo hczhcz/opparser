@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include "opcalc.hpp"
-#include "opcalcrule.hpp"
+#include "opcalcnear.hpp"
 
 namespace OPParser {
     // Calculator with REPL

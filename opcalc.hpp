@@ -1,12 +1,9 @@
 #ifndef __INC_CALC_HPP__
 #define __INC_CALC_HPP__
 
-#include "opparser.hpp"
+#include "opcalcrule.hpp"
 
 namespace OPParser {
-    // Type of data in the calculator
-    typedef double CalcData;
-
     // Calculator, to calculate arithmetic expressions
     // A simple example of implementing of the parser
     class Calc: public Parser {
