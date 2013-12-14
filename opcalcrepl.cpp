@@ -54,23 +54,25 @@ namespace OPParser {
             // Nothing
         } else {
             CalcData result = finishByData();
-            CalcNearData nearresult = fnear(result);
 
-            // Use near value
+            // If not NaN, find near value
+            if (result == result) {
+                CalcNearData nearresult = fnear(result);
 
-            // Find x ~= result
-            const auto found1 = NearValue.find(nearresult);
-            if (found1 != NearValue.end()) {
-                (*out)<<"  ~ "<<found1->second<<endl;
-            } else {
-                // Find x ~= -result
-                const auto found2 = NearValue.find(-nearresult);
-                if (found2 != NearValue.end()) {
-                    (*out)<<"  ~ "<<"- ("<<found2->second<<")"<<endl;
+                // Find x ~= result
+                const auto found1 = NearValue.find(nearresult);
+                if (found1 != NearValue.end()) {
+                    (*out)<<"  ~ "<<found1->second<<endl;
                 } else {
-                    // Find any ~= result
-                    if (nearresult != (CalcNearData)result) {
-                        (*out)<<"  ~ "<<nearresult<<endl;
+                    // Find x ~= -result
+                    const auto found2 = NearValue.find(-nearresult);
+                    if (found2 != NearValue.end()) {
+                        (*out)<<"  ~ "<<"- ("<<found2->second<<")"<<endl;
+                    } else {
+                        // Find any ~= result
+                        if (nearresult != (CalcNearData)result) {
+                            (*out)<<"  ~ "<<nearresult<<endl;
+                        }
                     }
                 }
             }
