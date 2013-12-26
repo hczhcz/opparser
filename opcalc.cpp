@@ -216,12 +216,12 @@ namespace OPParser {
         BiToken(BiOperType toType): type(toType) {}
 
         Level levelLeft() const {
-            const Level toMap[] = {levelAddSubL, levelAddSubL, levelMulDivL, levelMulDivL, levelMulDivL, levelPwrL};
+            const Level toMap[] = {levelAddSubL, levelAddSubL, levelMulDivL, levelIMulL, levelMulDivL, levelMulDivL, levelPwrL};
             return toMap[type];
         }
 
         Level levelRight() const {
-            const Level toMap[] = {levelAddSubR, levelAddSubR, levelMulDivR, levelMulDivR, levelMulDivR, levelPwrR};
+            const Level toMap[] = {levelAddSubR, levelAddSubR, levelMulDivR, levelIMulR, levelMulDivR, levelMulDivR, levelPwrR};
             return toMap[type];
         }
 
@@ -253,6 +253,7 @@ namespace OPParser {
                 tLeft->value -= tRight->value;
                 break;
             case otMul:
+            case otIMul:
                 tLeft->value *= tRight->value;
                 break;
             case otDiv:
@@ -613,7 +614,7 @@ namespace OPParser {
     class ImplicitMulLexer: public Lexer {
     public:
         bool tryGetToken(InputIter &now, const InputIter &end, Parser &parser) {
-            PToken token(new BiToken(otMul));
+            PToken token(new BiToken(otIMul));
             parser.midPush(token);
             return 1;
         }

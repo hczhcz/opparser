@@ -17,6 +17,8 @@ namespace OPParser {
     const Level levelAddSubR = 256;
     const Level levelMulDivL = 511;
     const Level levelMulDivR = 512;
+    const Level levelIMulL = 639;
+    const Level levelIMulR = 640;
     const Level levelPwrL = 769;
     const Level levelPwrR = 768;
     const Level levelFacL = 1023;
@@ -28,7 +30,7 @@ namespace OPParser {
     const State stateAssign = stateInitial + 2;
 
     // Bi-operators
-    enum BiOperType {otAdd, otSub, otMul, otDiv, otMod, otPwr};
+    enum BiOperType {otAdd, otSub, otMul, otIMul, otDiv, otMod, otPwr};
 
     // Mono-operators
     enum MonoOperType {mtPos, mtNeg, mtFac};
